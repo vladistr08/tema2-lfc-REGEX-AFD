@@ -5,15 +5,26 @@
 #ifndef TEMA2_LFC_REGEX_AFD_DETERMINISTICFINITEAUTOMATON_H
 #define TEMA2_LFC_REGEX_AFD_DETERMINISTICFINITEAUTOMATON_H
 
+#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
+#include <utility>
+#include "cpp-text-table-master/TextTable.h"
 
 class DeterministicFiniteAutomaton {
 public:
     DeterministicFiniteAutomaton() = default;
     DeterministicFiniteAutomaton(const DeterministicFiniteAutomaton &automaton) = default;
     DeterministicFiniteAutomaton(std::vector<std::string> states, std::vector<std::string> symbols, std::unordered_map<std::string, std::unordered_map<std::string, std::string>> delta, std::string startState, std::vector<std::string> finalStates);
+
+    bool VerifyAutomaton() const;
+    void PrintAutomaton() const;
+    bool IsDeterministic();
+    bool CheckWord(const std::string &word);
+
+    static std::vector<std::string> unionVector(std::vector<std::string> v1, std::vector<std::string> v2);
 
     const std::vector<std::string> &getMStates() const;
     void setMStates(const std::vector<std::string> &mStates);
@@ -30,11 +41,17 @@ public:
     const std::unordered_map<std::string, std::unordered_map<std::string, std::string>> &getMDelta() const;
     void setMDelta(const std::unordered_map<std::string, std::unordered_map<std::string, std::string>> &mDelta);
 
+    friend std::ostream& operator<<(std::ostream &out, const DeterministicFiniteAutomaton &automaton);
+    DeterministicFiniteAutomaton& operator=(const DeterministicFiniteAutomaton &f) = default;
+    ~DeterministicFiniteAutomaton() = default;
+
 protected:
     std::vector<std::string> m_states, m_finalStates;
     std::vector<std::string> m_symbols;
     std::string m_startState;
     std::unordered_map<std::string, std::unordered_map<std::string, std::string>> m_delta;
+private:
+    std::vector<std::string> generateStatesForSymbol(const std::string &symbol, const std::vector<std::string> &posibleStates);
 };
 
 
