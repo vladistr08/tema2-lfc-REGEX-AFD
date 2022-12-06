@@ -21,7 +21,7 @@ public:
 
     bool VerifyAutomaton() const;
     void PrintAutomaton() const;
-    bool IsDeterministic();
+    bool IsDeterministic() const;
     bool CheckWord(const std::string &word);
 
     static std::vector<std::string> unionVector(std::vector<std::string> v1, std::vector<std::string> v2);

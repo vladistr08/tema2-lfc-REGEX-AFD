@@ -70,7 +70,16 @@ bool DeterministicFiniteAutomaton::VerifyAutomaton() const {
         if(std::find(this->m_states.begin(), this->m_states.end(), final) == this->m_states.end())
             return false;
     }
-    //TODO Verify delta transition function
+    for(const auto &it: this->m_delta){
+        if(std::find(this->m_states.begin(), this->m_states.end(), it.first) == this->m_states.end())
+            return false;
+        for(const auto &jt: it.second){
+            if(std::find(this->m_states.begin(), this->m_states.end(), jt.second) == this->m_states.end())
+                return false;
+            if(std::find(this->m_symbols.begin(), this->m_symbols.end(), jt.first) == this->m_symbols.end())
+                return false;
+        }
+    }
 
     return true;
 }
@@ -120,62 +129,35 @@ std::ostream &operator<<(std::ostream &out, const DeterministicFiniteAutomaton &
     return out;
 }
 
-//TODO
-bool DeterministicFiniteAutomaton::IsDeterministic() {
+bool DeterministicFiniteAutomaton::IsDeterministic() const {
     if(!VerifyAutomaton()){
         return false;
-    }
-    for(const auto &dPair: this->m_delta){
-        for(const auto &dtPair: dPair.second){
-            if(dtPair.second.size() > 1){
-                return false;
-            }
-        }
     }
     return true;
 }
 
-//TODO
 bool DeterministicFiniteAutomaton::CheckWord(const std::string &word) {
-    std::vector<std::string> posibleStates;
-    posibleStates.emplace_back(this->m_startState);
+    std::string currentState = m_startState;
+    for(const auto& chr: word){
+        std::string aux = "";
+        aux += chr;
 
-    for(const auto &symbol: word){
-        std::string str;
-        str += symbol;
-        posibleStates = generateStatesForSymbol(str, posibleStates);
-    }
-    for(const auto &state: posibleStates){
-        if(std::find(this->m_finalStates.begin(), this->m_finalStates.end(), state) != this->m_finalStates.end())
-            return true;
-    }
-    return false;
-}
-
-std::vector<std::string>
-DeterministicFiniteAutomaton::generateStatesForSymbol(const std::string &symbol, const std::vector<std::string> &posibleStates) {
-    std::vector<std::string> result;
-    for(const auto &state: posibleStates) {
-        auto it = this->m_delta.find(state);
-        std::vector<std::string> states;
+        auto it = this->m_delta.find(currentState);
         if(it != this->m_delta.end()){
-            if(it->second.find(symbol) != it->second.end()){
-                states = it->second.find(symbol)->second;
+            auto jt  = it->second.find(aux);
+            if(jt != it->second.end()){
+                currentState = jt->second;
+            }
+            else{
+                break;
             }
         }
-        if(state.empty())
-            continue;
-        result = unionVector(result, states);
-    }
-    return result;
-}
+        else{
+            break;
+        }
 
-std::vector<std::string> DeterministicFiniteAutomaton::unionVector(std::vector<std::string> v1, std::vector<std::string> v2) {
-    std::vector<std::string> unifiedVector;
-    std::sort(v1.begin(), v1.end());
-    std::sort(v2.begin(), v2.end());
-    std::set_union(v1.begin(), v1.end(), v2.begin(), v2.end(), std::back_inserter(unifiedVector));
-    return unifiedVector;
+    }
+    return std::find(m_finalStates.begin(), m_finalStates.end(), currentState) != m_finalStates.end();
 }
 
 void DeterministicFiniteAutomaton::PrintAutomaton() const {
