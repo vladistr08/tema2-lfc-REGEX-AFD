@@ -70,6 +70,7 @@ bool DeterministicFiniteAutomaton::VerifyAutomaton() const {
         if(std::find(this->m_states.begin(), this->m_states.end(), final) == this->m_states.end())
             return false;
     }
+    //check delta
     for(const auto &it: this->m_delta){
         if(std::find(this->m_states.begin(), this->m_states.end(), it.first) == this->m_states.end())
             return false;
@@ -162,4 +163,8 @@ bool DeterministicFiniteAutomaton::CheckWord(const std::string &word) {
 
 void DeterministicFiniteAutomaton::PrintAutomaton() const {
     std::cout << *this << '\n';
+}
+
+DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(const std::string &regex) {
+    return {};
 }
