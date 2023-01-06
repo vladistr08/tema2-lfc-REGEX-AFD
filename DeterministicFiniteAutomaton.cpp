@@ -165,79 +165,162 @@ void DeterministicFiniteAutomaton::PrintAutomaton() const {
     std::cout << *this << '\n';
 }
 
+bool isChar(char c){
+    return (c != '|' && c != '*' && c != '.');
+}
+
+int prioritate(char op)
+{
+    if (op == '|')
+        return 1;
+    else if (op == '.')
+        return 2;
+    else if (op == '*')
+        return 3;
+    else
+        return -1;
+}
+
+
+std::string formaPoloneza(const std::string &regex)
+{
+    std::stack<char> op;
+    std::string fp = "";
+    int l = regex.size();
+    for (int i = 0; i < l; i++)
+        if (regex[i] == '(')
+            op.push(regex[i]);
+        else if (regex[i] == ')')
+        {
+            while (!op.empty() && op.top() != '(')
+            {
+                fp.push_back(op.top());
+                op.pop();
+            }
+            op.pop();
+        }
+        else if (prioritate(regex[i]) != -1)
+        {
+            while (!op.empty() && prioritate(op.top()) >= prioritate(regex[i]))
+            {
+                fp.push_back(op.top());
+                op.pop();
+            }
+            op.push(regex[i]);
+        }
+        else
+            fp.push_back(regex[i]);
+    while (!op.empty())
+    {
+        fp.push_back(op.top());
+        op.pop();
+    }
+    std::cout << fp << '\n';
+    return fp;
+}
+
+void removeDuplicates(std::vector<std::string> &v)
+{
+    auto end = v.end();
+    for (auto it = v.begin(); it != end; ++it) {
+        end = std::remove(it + 1, end, *it);
+    }
+    v.erase(end, v.end());
+}
+
 DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(const std::string &regex) {
-    formaPoloneza(regex);
+    std::string fp = formaPoloneza(regex);
     //un automat cu labda tranzitii -> prima tema
     //forma poloneza + algoritm
+
+    #define q "q"
+    std::stack<FiniteAutomaton> StackAutomata;
+    int counter = 0;
+
+    for(size_t index = 0; index < fp.length(); index++){
+        if(isChar(fp[index])){
+
+            std::vector<std::string> states({std::string{q+std::to_string(counter)}, std::string{q+std::to_string(counter + 1)}}), finalStates({std::string{q+std::to_string(counter + 1)}});
+            std::vector<std::string> symbols({std::string{fp[index]}});
+            std::string startState = std::string{q+std::to_string(counter)};
+            std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> delta;
+            std::unordered_map<std::string, std::vector<std::string>> aux;
+
+            aux.insert({symbols[0], finalStates});
+            delta.insert({startState, aux});
+            aux.clear();
+
+            auto A = FiniteAutomaton(
+                        states, symbols, delta, startState, finalStates
+                    );
+
+            StackAutomata.push(A);
+            counter += 2;
+        }
+        else if(fp[index] == '|'){
+            auto B = StackAutomata.top();
+            StackAutomata.pop();
+            auto A = StackAutomata.top();
+            StackAutomata.pop();
+
+            std::string startState = std::string{q+std::to_string(counter)};
+
+            std::vector<std::string> finalStates = {std::string{q+std::to_string(counter + 1)}};
+            std::vector<std::string> states;
+
+            states.emplace_back(startState);
+            states.emplace_back(finalStates[0]);
+
+            std::vector<std::string> bStates = B.getMStates(), aStates = A.getMStates();
+
+            for(const auto & bs: bStates){
+                states.emplace_back(bs);
+            }
+            for(const auto & as: aStates){
+                states.emplace_back(as);
+            }
+
+            removeDuplicates(states);
+
+            std::vector<std::string> symbols;
+            std::vector<std::string> aSymbols = A.getMSymbols(), bSymbols = B.getMSymbols();
+
+            for(const auto & as: aSymbols){
+                symbols.emplace_back(as);
+            }
+            for(const auto & bs: bSymbols){
+                symbols.emplace_back(bs);
+            }
+            symbols.emplace_back(lambda);
+
+            removeDuplicates(symbols);
+
+            std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> delta;
+            std::unordered_map<std::string, std::vector<std::string>> aux;
+
+            for(auto& [key, value]: A.getMDelta()){
+                delta.insert({key, value});
+            }
+            for(auto& [key, value]: B.getMDelta()){
+                delta.insert({key, value});
+            }
+
+            aux.insert({lambda, finalStates});
+            delta.insert({A.getMFinalStates()[0], aux});
+            delta.insert({B.getMFinalStates()[0], aux});
+
+            aux.clear();
+            aux.insert({lambda, {A.getMStartState(), B.getMStartState()}});
+            delta.insert({startState, aux});
+
+            FiniteAutomaton C(
+                    states, symbols, delta, startState, finalStates
+                    );
+            StackAutomata.push(C);
+            counter += 2;
+        }
+    }
+
     return {};
 }
 
-std::string DeterministicFiniteAutomaton::formaPoloneza(const std::string &regex) {
-    std::string fp;
-    int nr = 0;
-    int lungimefp = 0;
-    std::stack<char> S;
-    for (int i = 0; i < regex.length(); i++)
-    {
-        if (regex[i] == ' ')
-            i++;
-        if(i < regex.length() - 1 && regex[i] == '.' && regex[i+1] == '('){
-            S.push(regex[i]);
-            continue;
-        }
-        if (regex[i] == '(' || regex[i] == '|' || regex[i] == '.' || regex[i] == '*')
-        {
-            if (!S.empty())
-            {
-                if (S.top() == '.' || S.top() == '*' || S.top() == '|')
-                {
-                    fp.push_back(S.top());
-                    S.pop();
-                    lungimefp++;
-                }
-            }
-            S.push(regex[i]);
-            if (regex[i] == '(')
-                nr++;
-        }
-        else
-        if (regex[i] == ')')
-        {
-            while (S.top() != '(')
-            {
-                fp.push_back(S.top());
-                S.pop();
-                lungimefp++;
-            }
-            S.pop();
-            nr--;
-            if (nr == 0)
-            {
-                while (!S.empty())
-                {
-                    fp.push_back(S.top());
-                    S.pop();
-                    lungimefp++;
-                }
-            }
-        }
-        else
-        {
-            fp += regex[i];
-            lungimefp++;
-        }
-
-    }
-    if (nr != 0)
-    {
-        std::cout << "Expresia nu este corecta";
-        return "";
-    }
-    while (!S.empty())
-    {
-        fp.push_back(S.top());
-        S.pop();
-    }
-    std::cout << fp;
-    return fp;
-}

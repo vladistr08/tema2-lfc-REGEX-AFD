@@ -13,6 +13,7 @@
 #include <utility>
 #include <stack>
 #include "cpp-text-table-master/TextTable.h"
+#include "FiniteAutomaton.h"
 
 class DeterministicFiniteAutomaton {
 public:
