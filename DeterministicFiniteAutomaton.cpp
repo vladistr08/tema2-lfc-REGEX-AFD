@@ -166,5 +166,78 @@ void DeterministicFiniteAutomaton::PrintAutomaton() const {
 }
 
 DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(const std::string &regex) {
+    formaPoloneza(regex);
+    //un automat cu labda tranzitii -> prima tema
+    //forma poloneza + algoritm
     return {};
+}
+
+std::string DeterministicFiniteAutomaton::formaPoloneza(const std::string &regex) {
+    std::string fp;
+    int nr = 0;
+    int lungimefp = 0;
+    std::stack<char> S;
+    for (int i = 0; i < regex.length(); i++)
+    {
+        if (regex[i] == ' ')
+            i++;
+        if(i < regex.length() - 1 && regex[i] == '.' && regex[i+1] == '('){
+            S.push(regex[i]);
+            continue;
+        }
+        if (regex[i] == '(' || regex[i] == '|' || regex[i] == '.' || regex[i] == '*')
+        {
+            if (!S.empty())
+            {
+                if (S.top() == '.' || S.top() == '*' || S.top() == '|')
+                {
+                    fp.push_back(S.top());
+                    S.pop();
+                    lungimefp++;
+                }
+            }
+            S.push(regex[i]);
+            if (regex[i] == '(')
+                nr++;
+        }
+        else
+        if (regex[i] == ')')
+        {
+            while (S.top() != '(')
+            {
+                fp.push_back(S.top());
+                S.pop();
+                lungimefp++;
+            }
+            S.pop();
+            nr--;
+            if (nr == 0)
+            {
+                while (!S.empty())
+                {
+                    fp.push_back(S.top());
+                    S.pop();
+                    lungimefp++;
+                }
+            }
+        }
+        else
+        {
+            fp += regex[i];
+            lungimefp++;
+        }
+
+    }
+    if (nr != 0)
+    {
+        std::cout << "Expresia nu este corecta";
+        return "";
+    }
+    while (!S.empty())
+    {
+        fp.push_back(S.top());
+        S.pop();
+    }
+    std::cout << fp;
+    return fp;
 }

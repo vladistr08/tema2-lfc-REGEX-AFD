@@ -11,6 +11,7 @@
 #include <vector>
 #include <algorithm>
 #include <utility>
+#include <stack>
 #include "cpp-text-table-master/TextTable.h"
 
 class DeterministicFiniteAutomaton {
@@ -50,6 +51,8 @@ protected:
     std::vector<std::string> m_symbols;
     std::string m_startState;
     std::unordered_map<std::string, std::unordered_map<std::string, std::string>> m_delta;
+private:
+    std::string formaPoloneza(const std::string &regex);
 };
 
 
