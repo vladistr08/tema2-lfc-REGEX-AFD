@@ -181,9 +181,36 @@ int prioritate(char op)
         return -1;
 }
 
+bool isValid(const std::string& regex)
+{
+    for (char c : regex)
+    {
+        bool ok = false;
+        if (isalpha(c) || isdigit(c) || c == '|' || c == '.' || c == '*' || c == '(' || c == ')') {
+            ok = true;
+        }
+        if (ok == false) {
+            return false;
+        }
+    }
+    for (int i = 1; i < regex.length(); i++)
+    {
+        if (regex[i - 1] == regex[i] || (isalpha(regex[i-1]) && isalpha(regex[i])) || (isdigit(regex[i - 1]) && isdigit(regex[i])))
+            return false;
+    }
+
+    if (count(regex.begin(), regex.end(), '(') != count(regex.begin(), regex.end(), ')')) {
+        return false;
+    }
+    return true;
+}
 
 std::string formaPoloneza(const std::string &regex)
 {
+    if(!isValid(regex)){
+        std::cout << "Regex exp is not valid try again!\n";
+        return "";
+    }
     std::stack<char> op;
     std::string fp = "";
     int l = regex.size();
@@ -229,9 +256,12 @@ void removeDuplicates(std::vector<std::string> &v)
 }
 
 DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(const std::string &regex) {
+    if(!isValid(regex)){
+        std::cout << "Regex is not valid!\n";
+        return {};
+    }
+
     std::string fp = formaPoloneza(regex);
-    //un automat cu labda tranzitii -> prima tema
-    //forma poloneza + algoritm
 
     #define q "q"
     std::stack<FiniteAutomaton> StackAutomata;
@@ -319,7 +349,107 @@ DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(cons
             StackAutomata.push(C);
             counter += 2;
         }
+        else if(fp[index] == '.'){
+            auto B = StackAutomata.top();
+            StackAutomata.pop();
+            auto A = StackAutomata.top();
+            StackAutomata.pop();
+
+            std::string startState{A.getMStartState()};
+            std::vector<std::string> states, symbols, finalStates{B.getMFinalStates()};
+            std::vector<std::string> aSymbols = A.getMSymbols(), bSymbols = B.getMSymbols();
+            std::vector<std::string> bStates = B.getMStates(), aStates = A.getMStates();
+
+            std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> delta;
+
+            for(const auto & as: aSymbols){
+                symbols.emplace_back(as);
+            }
+            for(const auto & bs: bSymbols){
+                symbols.emplace_back(bs);
+            }
+            symbols.emplace_back(lambda);
+            removeDuplicates(symbols);
+
+
+            for(const auto & bs: bStates){
+                if(bs != B.getMStartState())
+                    states.emplace_back(bs);
+            }
+            for(const auto & as: aStates){
+                if(as != A.getMFinalStates()[0])
+                    states.emplace_back(as);
+            }
+            //middle section state
+            std::string middleState = q + std::to_string(index) + "m";
+            states.emplace_back(middleState);
+            ///////////
+            removeDuplicates(states);
+
+            for(auto& [key, value]: A.getMDelta()){
+                bool ok = 1;
+                for(auto& [symb, val]: value){
+                    if(val[0] == A.getMFinalStates()[0]){
+                        delta.insert({key, {{symb, {middleState}}}});
+                        ok = 0;
+                        break;
+                    }
+                }
+                if(ok)
+                    delta.insert({key, value});
+            }
+            for(auto& [key, value]: B.getMDelta()){
+                if(key == B.getMStartState()){
+                    delta.insert({middleState, value});
+                }
+                else
+                    delta.insert({key, value});
+            }
+
+            FiniteAutomaton C(
+                    states, symbols, delta, startState, finalStates
+                    );
+            StackAutomata.push(C);
+        }
+        else if(fp[index] == '*'){
+            auto A = StackAutomata.top();
+            StackAutomata.pop();
+
+            std::vector<std::string> states{A.getMStates()};
+            states.emplace_back(q + std::to_string(index));
+            states.emplace_back(q + std::to_string(index + 1));
+
+            std::vector<std::string> symbols{A.getMSymbols()};
+            if(std::find(symbols.begin(), symbols.end(), lambda) == symbols.end())
+                symbols.emplace_back(lambda);
+
+            std::string startState = q + std::to_string(index);
+            std::vector<std::string> finalStates{q + std::to_string(index + 1)};
+
+            std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> delta;
+
+            delta = A.getMDelta();
+            delta[A.getMFinalStates()[0]].insert({lambda, {A.getMStartState()}});
+            delta.insert({startState, {{lambda, {A.getMStartState()}}}});
+            delta.insert({A.getMFinalStates()[0], {{lambda, {finalStates[0]}}}});
+            delta.insert({startState, {{lambda, {finalStates[0]}}}});
+
+            FiniteAutomaton C(
+                    states, symbols, delta, startState, finalStates
+                    );
+            StackAutomata.push(C);
+        }
     }
+
+    if(StackAutomata.size() != 1){
+        std::cout << "Something went wrong in regex convert function!\n";
+        return {};
+    }
+    FiniteAutomaton resultedAutomata = StackAutomata.top();
+    StackAutomata.pop();
+
+    resultedAutomata.PrintAutomaton();
+    std::cout << "aabaaa result: "<< resultedAutomata.CheckWord("aabaaa");
 
     return {};
 }

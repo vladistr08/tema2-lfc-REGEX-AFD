@@ -6,7 +6,7 @@
 #include <fstream>
 
 int main() {
-    std::fstream f("expresii_regulate.txt");
+    /*std::fstream f("expresii_regulate.txt");
     std::vector<std::string> states({"q1", "q2", "q3"}), finalStates({"q3"});
     std::vector<std::string> symbols({"a", "b"});
     std::string startState = "q1";
@@ -56,5 +56,8 @@ int main() {
                 break;
         }
     } while (options != 0);
+     */
+    DeterministicFiniteAutomaton a;
+    a.ConvertFromRegex("a.b");
     return 0;
 }
