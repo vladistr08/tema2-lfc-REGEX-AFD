@@ -10,6 +10,7 @@
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
+#include "UsefulMethods.h"
 #include "cpp-text-table-master/TextTable.h"
 
 #define lambda "λ"
@@ -44,6 +45,7 @@ public:
     FiniteAutomaton& operator=(const FiniteAutomaton &f) = default;
     ~FiniteAutomaton() = default;
 private:
+    std::vector<std::string> findLambdaClosure(const std::string &currentState);
     std::vector<std::string> generateStatesForSymbol(const std::string &symbol, const std::vector<std::string> &posibleStates);
     static std::vector<std::string> unionVector(std::vector<std::string> v1, std::vector<std::string> v2);
 protected:

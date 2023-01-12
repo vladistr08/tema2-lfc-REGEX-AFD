@@ -58,6 +58,6 @@ int main() {
     } while (options != 0);
      */
     DeterministicFiniteAutomaton a;
-    a.ConvertFromRegex("a.b");
+    a.ConvertFromRegex("(a.b)|(b.b)");
     return 0;
 }

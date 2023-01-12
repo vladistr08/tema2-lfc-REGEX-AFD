@@ -246,14 +246,6 @@ std::string formaPoloneza(const std::string &regex)
     return fp;
 }
 
-void removeDuplicates(std::vector<std::string> &v)
-{
-    auto end = v.end();
-    for (auto it = v.begin(); it != end; ++it) {
-        end = std::remove(it + 1, end, *it);
-    }
-    v.erase(end, v.end());
-}
 
 DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(const std::string &regex) {
     if(!isValid(regex)){
@@ -310,7 +302,7 @@ DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(cons
                 states.emplace_back(as);
             }
 
-            removeDuplicates(states);
+            UsefulMethods::removeDuplicates(states);
 
             std::vector<std::string> symbols;
             std::vector<std::string> aSymbols = A.getMSymbols(), bSymbols = B.getMSymbols();
@@ -323,7 +315,7 @@ DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(cons
             }
             symbols.emplace_back(lambda);
 
-            removeDuplicates(symbols);
+            UsefulMethods::removeDuplicates(symbols);
 
             std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> delta;
             std::unordered_map<std::string, std::vector<std::string>> aux;
@@ -369,7 +361,7 @@ DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(cons
                 symbols.emplace_back(bs);
             }
             symbols.emplace_back(lambda);
-            removeDuplicates(symbols);
+            UsefulMethods::removeDuplicates(symbols);
 
 
             for(const auto & bs: bStates){
@@ -384,7 +376,7 @@ DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(cons
             std::string middleState = q + std::to_string(index) + "m";
             states.emplace_back(middleState);
             ///////////
-            removeDuplicates(states);
+            UsefulMethods::removeDuplicates(states);
 
             for(auto& [key, value]: A.getMDelta()){
                 bool ok = 1;
@@ -448,7 +440,7 @@ DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(cons
     FiniteAutomaton resultedAutomata = StackAutomata.top();
     StackAutomata.pop();
 
-    std::cout << "aabaaa result: "<< resultedAutomata.CheckWord("aabaaa");
+    std::cout << "result: "<< resultedAutomata.CheckWord("abbcbcc");
 
     return {};
 }

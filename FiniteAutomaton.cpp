@@ -5,6 +5,7 @@
 #include "FiniteAutomaton.h"
 
 #include <utility>
+#include <queue>
 
 FiniteAutomaton::FiniteAutomaton(std::vector<std::string> states, std::vector<std::string> symbols, std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> delta, std::string startState, std::vector<std::string> finalStates)
 :       m_states(std::move(states)),
@@ -119,6 +120,36 @@ bool FiniteAutomaton::CheckWord(const std::string &word) {
     return false;
 }
 
+std::vector<std::string> FiniteAutomaton::findLambdaClosure(const std::string &currentState){
+
+    std::vector<std::string> closure;
+    closure = this->m_delta[currentState].find(lambda)->second;
+
+    std::queue<std::string> currentFound;
+
+    for(const auto &state: closure){
+        currentFound.push(state);
+    }
+
+    while(!currentFound.empty()){
+        std::string state = currentFound.front();
+        std::vector<std::string> transitionsFound{};
+        if(!m_delta[state].empty() && m_delta[state].find(lambda) != m_delta[state].end())
+            transitionsFound = this->m_delta[state].find(lambda)->second;
+        if(!transitionsFound.empty()){
+            for(const auto &transition: transitionsFound){
+                if(std::find(closure.begin(), closure.end(), transition) == closure.end()){
+                    closure.emplace_back(transition);
+                    currentFound.push(transition);
+                }
+            }
+        }
+        currentFound.pop();
+    }
+
+    return closure;
+}
+
 std::vector<std::string>
 FiniteAutomaton::generateStatesForSymbol(const std::string &symbol, const std::vector<std::string> &posibleStates) {
     std::vector<std::string> result;
@@ -130,14 +161,14 @@ FiniteAutomaton::generateStatesForSymbol(const std::string &symbol, const std::v
                 states = it->second.find(symbol)->second;
             }
             if(it->second.find(lambda) != it->second.end()){
-                for(const auto &state: it->second.find(lambda)->second){
-                    states.emplace_back(state);
-                }
+                std::vector<std::string> resultLambdaClosure = findLambdaClosure(state);
+                states = unionVector(states, resultLambdaClosure);
             }
         }
         if(state.empty())
             continue;
         result = unionVector(result, states);
+        UsefulMethods::removeDuplicates(result);
     }
     return result.empty() ? posibleStates : result;
 }
