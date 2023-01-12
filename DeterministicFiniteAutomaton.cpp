@@ -448,7 +448,6 @@ DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(cons
     FiniteAutomaton resultedAutomata = StackAutomata.top();
     StackAutomata.pop();
 
-    resultedAutomata.PrintAutomaton();
     std::cout << "aabaaa result: "<< resultedAutomata.CheckWord("aabaaa");
 
     return {};

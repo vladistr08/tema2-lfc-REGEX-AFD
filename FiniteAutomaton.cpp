@@ -139,7 +139,7 @@ FiniteAutomaton::generateStatesForSymbol(const std::string &symbol, const std::v
             continue;
         result = unionVector(result, states);
     }
-    return result;
+    return result.empty() ? posibleStates : result;
 }
 
 std::vector<std::string> FiniteAutomaton::unionVector(std::vector<std::string> v1, std::vector<std::string> v2) {
