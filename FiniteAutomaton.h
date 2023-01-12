@@ -12,6 +12,7 @@
 #include <algorithm>
 #include "UsefulMethods.h"
 #include "cpp-text-table-master/TextTable.h"
+#include "DeterministicFiniteAutomaton.h"
 
 #define lambda "λ"
 
@@ -40,6 +41,8 @@ public:
     void PrintAutomaton() const;
     bool CheckWord(const std::string &word);
     bool IsDeterministic();
+
+    DeterministicFiniteAutomaton ConvertToDFA();
 
     friend std::ostream& operator<<(std::ostream &out, const FiniteAutomaton &automaton);
     FiniteAutomaton& operator=(const FiniteAutomaton &f) = default;

@@ -236,3 +236,7 @@ void FiniteAutomaton::setMDelta(
         const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> &mDelta) {
     m_delta = mDelta;
 }
+
+DeterministicFiniteAutomaton FiniteAutomaton::ConvertToDFA() {
+    return DeterministicFiniteAutomaton();
+}

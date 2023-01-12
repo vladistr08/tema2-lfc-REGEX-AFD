@@ -442,6 +442,8 @@ DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(cons
 
     std::cout << "result: "<< resultedAutomata.CheckWord("abbcbcc");
 
+    DeterministicFiniteAutomaton aux = resultedAutomata.ConvertToDFA();
+
     return {};
 }
 
