@@ -217,7 +217,7 @@ std::string formaPoloneza(const std::string &regex)
     return fp;
 }
 
-DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(const std::string &regex) {
+FiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(const std::string &regex) {
     if(!UsefulMethods::isValidRegex(regex)){
         std::cout << "Regex is not valid!\n";
         return {};
@@ -411,7 +411,7 @@ DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(cons
     FiniteAutomaton resultedAutomata = StackAutomata.top();
     StackAutomata.pop();
 
-    return ConvertFromNFA(resultedAutomata);
+    return resultedAutomata;
 }
 
 DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromNFA(const FiniteAutomaton &automaton) {
@@ -429,6 +429,8 @@ DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromNFA(const 
 
     size_t counter = 0;
     std::unordered_map<std::string, std::string> newStatesMap;
+
+
 
 }
 
