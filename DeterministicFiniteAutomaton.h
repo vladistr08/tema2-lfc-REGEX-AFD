@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <utility>
 #include <stack>
+
 #include "UsefulMethods.h"
 #include "cpp-text-table-master/TextTable.h"
 #include "FiniteAutomaton.h"

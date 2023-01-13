@@ -1,10 +1,10 @@
 #include <iostream>
+#include <string>
+#include <fstream>
+
 #include "DeterministicFiniteAutomaton.h"
 #include "FiniteAutomaton.h"
-#include <vector>
-#include <string>
-#include <unordered_map>
-#include <fstream>
+#include "UsefulMethods.h"
 
 int main() {
     std::fstream f("/home/istra/CLionProjects/lfc-tema2/tema2-lfc-REGEX-AFD/expresii_regulate.txt");
@@ -13,6 +13,11 @@ int main() {
     f >> regex;
 
     f.close();
+
+    if(!UsefulMethods::isValidRegex(regex)){
+        std::cout << "Regex from file was not correct, try again!\n";
+        return 0;
+    }
 
     DeterministicFiniteAutomaton b;
     FiniteAutomaton a = b.ConvertFromRegex(regex);
