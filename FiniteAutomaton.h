@@ -42,13 +42,11 @@ public:
     bool CheckWord(const std::string &word);
     bool IsDeterministic();
 
-    DeterministicFiniteAutomaton ConvertToDFA();
-
     friend std::ostream& operator<<(std::ostream &out, const FiniteAutomaton &automaton);
     FiniteAutomaton& operator=(const FiniteAutomaton &f) = default;
     ~FiniteAutomaton() = default;
 private:
-    std::vector<std::string> findLambdaClosure(const std::string &currentState);
+    std::vector<std::string> findLambdaClosure(const std::string &state, const std::string & symbol, std::vector<std::string> &closure);
     std::vector<std::string> generateStatesForSymbol(const std::string &symbol, const std::vector<std::string> &posibleStates);
     static std::vector<std::string> unionVector(std::vector<std::string> v1, std::vector<std::string> v2);
 protected:

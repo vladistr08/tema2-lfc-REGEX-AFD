@@ -166,7 +166,7 @@ void DeterministicFiniteAutomaton::PrintAutomaton() const {
 }
 
 bool isChar(char c){
-    return (c != '|' && c != '*' && c != '.');
+    return (c != '|' && c != '*' && c != '.' && c != '(' && c != ')');
 }
 
 int prioritate(char op)
@@ -245,7 +245,6 @@ std::string formaPoloneza(const std::string &regex)
     std::cout << fp << '\n';
     return fp;
 }
-
 
 DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(const std::string &regex) {
     if(!isValid(regex)){
@@ -408,28 +407,27 @@ DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(cons
             StackAutomata.pop();
 
             std::vector<std::string> states{A.getMStates()};
-            states.emplace_back(q + std::to_string(index));
-            states.emplace_back(q + std::to_string(index + 1));
+            states.emplace_back(q + std::to_string(counter));
+            states.emplace_back(q + std::to_string(counter + 1));
 
             std::vector<std::string> symbols{A.getMSymbols()};
             if(std::find(symbols.begin(), symbols.end(), lambda) == symbols.end())
                 symbols.emplace_back(lambda);
 
-            std::string startState = q + std::to_string(index);
-            std::vector<std::string> finalStates{q + std::to_string(index + 1)};
+            std::string startState = q + std::to_string(counter);
+            std::vector<std::string> finalStates{q + std::to_string(counter + 1)};
 
             std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> delta;
 
             delta = A.getMDelta();
-            delta[A.getMFinalStates()[0]].insert({lambda, {A.getMStartState()}});
-            delta.insert({startState, {{lambda, {A.getMStartState()}}}});
-            delta.insert({A.getMFinalStates()[0], {{lambda, {finalStates[0]}}}});
-            delta.insert({startState, {{lambda, {finalStates[0]}}}});
+            delta[A.getMFinalStates()[0]].insert({lambda, {A.getMStartState(), finalStates[0]}});
+            delta[startState].insert({lambda, {A.getMStartState(), finalStates[0]}});
 
             FiniteAutomaton C(
                     states, symbols, delta, startState, finalStates
                     );
             StackAutomata.push(C);
+            counter += 2;
         }
     }
 
@@ -440,9 +438,7 @@ DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(cons
     FiniteAutomaton resultedAutomata = StackAutomata.top();
     StackAutomata.pop();
 
-    std::cout << "result: "<< resultedAutomata.CheckWord("abbcbcc");
-
-    DeterministicFiniteAutomaton aux = resultedAutomata.ConvertToDFA();
+    std::cout << "result: "<< resultedAutomata.CheckWord("avcbacccabaaccccc");
 
     return {};
 }

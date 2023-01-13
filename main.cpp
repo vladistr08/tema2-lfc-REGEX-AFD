@@ -1,5 +1,6 @@
 #include <iostream>
 #include "DeterministicFiniteAutomaton.h"
+#include "FiniteAutomaton.h"
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -58,6 +59,6 @@ int main() {
     } while (options != 0);
      */
     DeterministicFiniteAutomaton a;
-    a.ConvertFromRegex("(a.b)|(b.b)");
+    a.ConvertFromRegex("a.b.a.(a|b)*");
     return 0;
 }

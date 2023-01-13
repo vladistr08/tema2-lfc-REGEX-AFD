@@ -120,39 +120,36 @@ bool FiniteAutomaton::CheckWord(const std::string &word) {
     return false;
 }
 
-std::vector<std::string> FiniteAutomaton::findLambdaClosure(const std::string &currentState){
+std::vector<std::string> FiniteAutomaton::findLambdaClosure(const std::string &state, const std::string & symbol, std::vector<std::string> &closure){
+    std::vector<std::string> transitionsFound{};
+    if(!m_delta[state].empty() && m_delta[state].find(lambda) != m_delta[state].end())
+        transitionsFound = this->m_delta[state].find(lambda)->second;
 
-    std::vector<std::string> closure;
-    closure = this->m_delta[currentState].find(lambda)->second;
-
-    std::queue<std::string> currentFound;
-
-    for(const auto &state: closure){
-        currentFound.push(state);
+    if(!m_delta[state].empty() && m_delta[state].find(symbol) != m_delta[state].end()){
+        std::vector<std::string> transitionAux = m_delta[state].find(symbol)->second;
+        for(const auto & trans: transitionAux){
+            transitionsFound.emplace_back(trans);
+        }
     }
 
-    while(!currentFound.empty()){
-        std::string state = currentFound.front();
-        std::vector<std::string> transitionsFound{};
-        if(!m_delta[state].empty() && m_delta[state].find(lambda) != m_delta[state].end())
-            transitionsFound = this->m_delta[state].find(lambda)->second;
-        if(!transitionsFound.empty()){
-            for(const auto &transition: transitionsFound){
-                if(std::find(closure.begin(), closure.end(), transition) == closure.end()){
-                    closure.emplace_back(transition);
-                    currentFound.push(transition);
-                }
+    UsefulMethods::removeDuplicates(transitionsFound);
+    for(const auto & transition: transitionsFound){
+        if(std::find(closure.begin(), closure.end(), transition) == closure.end())
+        {
+            closure.emplace_back(transition);
+            std::vector<std::string> transitionAux = findLambdaClosure(transition, symbol, closure);
+            for(const auto & trans: transitionAux){
+                closure.emplace_back(trans);
             }
         }
-        currentFound.pop();
     }
-
+    UsefulMethods::removeDuplicates(closure);
     return closure;
 }
 
 std::vector<std::string>
 FiniteAutomaton::generateStatesForSymbol(const std::string &symbol, const std::vector<std::string> &posibleStates) {
-    std::vector<std::string> result;
+    std::vector<std::string> result, aux;
     for(const auto &state: posibleStates) {
         auto it = this->m_delta.find(state);
         std::vector<std::string> states;
@@ -161,12 +158,12 @@ FiniteAutomaton::generateStatesForSymbol(const std::string &symbol, const std::v
                 states = it->second.find(symbol)->second;
             }
             if(it->second.find(lambda) != it->second.end()){
-                std::vector<std::string> resultLambdaClosure = findLambdaClosure(state);
+                std::vector<std::string> resultLambdaClosure = findLambdaClosure(state, symbol, aux);
                 states = unionVector(states, resultLambdaClosure);
             }
         }
-        if(state.empty())
-            continue;
+        if(states.empty())
+            states = {state};
         result = unionVector(result, states);
         UsefulMethods::removeDuplicates(result);
     }
@@ -237,6 +234,3 @@ void FiniteAutomaton::setMDelta(
     m_delta = mDelta;
 }
 
-DeterministicFiniteAutomaton FiniteAutomaton::ConvertToDFA() {
-    return DeterministicFiniteAutomaton();
-}
