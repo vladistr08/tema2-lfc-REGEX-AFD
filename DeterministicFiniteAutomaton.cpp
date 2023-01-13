@@ -428,7 +428,7 @@ DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromNFA(const 
     std::unordered_map<std::string, std::unordered_map<std::string, std::string>> newDelta;
 
     size_t counter = 0;
-    std::unordered_map<std::string, std::string> newStatesMap;
+    std::unordered_map<std::string, std::unordered_set<std::string>> newStatesMap;
 
 
 

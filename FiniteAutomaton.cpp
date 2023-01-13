@@ -111,6 +111,8 @@ bool FiniteAutomaton::CheckWord(const std::string &word) {
     for(const auto &symbol: word){
         std::string str;
         str += symbol;
+        if(std::find(m_symbols.begin(), m_symbols.end(), str) == m_symbols.end())
+            return false;
         posibleStates = generateStatesForSymbol(str, posibleStates);
     }
     for(const auto &state: posibleStates){
