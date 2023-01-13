@@ -217,7 +217,7 @@ std::string formaPoloneza(const std::string &regex)
     return fp;
 }
 
-FiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(const std::string &regex) {
+DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(const std::string &regex) {
     if(!UsefulMethods::isValidRegex(regex)){
         std::cout << "Regex is not valid!\n";
         return {};
@@ -344,10 +344,10 @@ FiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(const std::string
                 if(as != A.getMFinalStates()[0])
                     states.emplace_back(as);
             }
-            //middle section state
+
             std::string middleState = q + std::to_string(index) + "m";
             states.emplace_back(middleState);
-            ///////////
+
             UsefulMethods::removeDuplicates(states);
 
             for(auto& [key, value]: A.getMDelta()){
@@ -411,6 +411,24 @@ FiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(const std::string
     FiniteAutomaton resultedAutomata = StackAutomata.top();
     StackAutomata.pop();
 
-    return resultedAutomata;
+    return ConvertFromNFA(resultedAutomata);
+}
+
+DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromNFA(const FiniteAutomaton &automaton) {
+    std::vector<std::string> symbols = automaton.getMSymbols(), newSymbols;
+
+    std::vector<std::string> states = automaton.getMStates(), newStates{};
+
+    std::vector<std::string> finalStates = automaton.getMFinalStates(), newFinalStates{};
+
+    std::string startState = automaton.getMStartState(), newStartState{};
+
+    auto delta = automaton.getMDelta();
+
+    std::unordered_map<std::string, std::unordered_map<std::string, std::string>> newDelta;
+
+    size_t counter = 0;
+    std::unordered_map<std::string, std::string> newStatesMap;
+
 }
 

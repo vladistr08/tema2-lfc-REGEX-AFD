@@ -44,3 +44,12 @@ bool UsefulMethods::isValidRegex(const std::string &regex) {
     }
     return true;
 }
+
+std::string UsefulMethods::convertVectorOfStatesToString(const std::vector<std::string> &states) {
+    std::string result = "{";
+    for(const auto & state: states){
+        result += state;
+        result += ",";
+    }
+    result += "}";
+}
