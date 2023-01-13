@@ -1,6 +1,7 @@
 //
 // Created by istra on 11/5/22.
 //
+#pragma once
 
 #ifndef LFC_TEMA1_FINITEAUTOMATON_H
 #define LFC_TEMA1_FINITEAUTOMATON_H
@@ -12,7 +13,6 @@
 #include <algorithm>
 #include "UsefulMethods.h"
 #include "cpp-text-table-master/TextTable.h"
-#include "DeterministicFiniteAutomaton.h"
 
 #define lambda "λ"
 
@@ -48,7 +48,6 @@ public:
 private:
     std::vector<std::string> findLambdaClosure(const std::string &state, const std::string & symbol, std::vector<std::string> &closure);
     std::vector<std::string> generateStatesForSymbol(const std::string &symbol, const std::vector<std::string> &posibleStates);
-    static std::vector<std::string> unionVector(std::vector<std::string> v1, std::vector<std::string> v2);
 protected:
     std::vector<std::string> m_states, m_finalStates;
     std::vector<std::string> m_symbols;

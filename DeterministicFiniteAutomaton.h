@@ -1,6 +1,7 @@
 //
 // Created by istra on 12/6/22.
 //
+#pragma once
 
 #ifndef TEMA2_LFC_REGEX_AFD_DETERMINISTICFINITEAUTOMATON_H
 #define TEMA2_LFC_REGEX_AFD_DETERMINISTICFINITEAUTOMATON_H
@@ -42,7 +43,7 @@ public:
     const std::unordered_map<std::string, std::unordered_map<std::string, std::string>> &getMDelta() const;
     void setMDelta(const std::unordered_map<std::string, std::unordered_map<std::string, std::string>> &mDelta);
 
-    DeterministicFiniteAutomaton ConvertFromRegex(const std::string &regex);
+    FiniteAutomaton ConvertFromRegex(const std::string &regex);
 
     friend std::ostream& operator<<(std::ostream &out, const DeterministicFiniteAutomaton &automaton);
     DeterministicFiniteAutomaton& operator=(const DeterministicFiniteAutomaton &f) = default;

@@ -10,7 +10,16 @@
 #include <algorithm>
 
 class UsefulMethods {
-    public: static void removeDuplicates(std::vector<std::string> &v);
+public:
+    UsefulMethods() = delete;
+    UsefulMethods(const UsefulMethods &) = delete;
+    ~UsefulMethods() = delete;
+
+    void operator=(const UsefulMethods&) = delete;
+
+    static void removeDuplicates(std::vector<std::string> &v);
+    static std::vector<std::string> unionVector(std::vector<std::string> v1, std::vector<std::string> v2);
+    static bool isValidRegex(const std::string &regex);
 };
 
 

@@ -159,24 +159,18 @@ FiniteAutomaton::generateStatesForSymbol(const std::string &symbol, const std::v
             }
             if(it->second.find(lambda) != it->second.end()){
                 std::vector<std::string> resultLambdaClosure = findLambdaClosure(state, symbol, aux);
-                states = unionVector(states, resultLambdaClosure);
+                states = UsefulMethods::unionVector(states, resultLambdaClosure);
             }
         }
         if(states.empty())
             states = {state};
-        result = unionVector(result, states);
+        result = UsefulMethods::unionVector(result, states);
         UsefulMethods::removeDuplicates(result);
     }
     return result.empty() ? posibleStates : result;
 }
 
-std::vector<std::string> FiniteAutomaton::unionVector(std::vector<std::string> v1, std::vector<std::string> v2) {
-    std::vector<std::string> unifiedVector;
-    std::sort(v1.begin(), v1.end());
-    std::sort(v2.begin(), v2.end());
-    std::set_union(v1.begin(), v1.end(), v2.begin(), v2.end(), std::back_inserter(unifiedVector));
-    return unifiedVector;
-}
+
 
 bool FiniteAutomaton::IsDeterministic() {
     if(!VerifyAutomaton()){

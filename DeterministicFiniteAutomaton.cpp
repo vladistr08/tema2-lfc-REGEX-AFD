@@ -165,10 +165,6 @@ void DeterministicFiniteAutomaton::PrintAutomaton() const {
     std::cout << *this << '\n';
 }
 
-bool isChar(char c){
-    return (c != '|' && c != '*' && c != '.' && c != '(' && c != ')');
-}
-
 int prioritate(char op)
 {
     if (op == '|')
@@ -181,33 +177,9 @@ int prioritate(char op)
         return -1;
 }
 
-bool isValid(const std::string& regex)
-{
-    for (char c : regex)
-    {
-        bool ok = false;
-        if (isalpha(c) || isdigit(c) || c == '|' || c == '.' || c == '*' || c == '(' || c == ')') {
-            ok = true;
-        }
-        if (ok == false) {
-            return false;
-        }
-    }
-    for (int i = 1; i < regex.length(); i++)
-    {
-        if (regex[i - 1] == regex[i] || (isalpha(regex[i-1]) && isalpha(regex[i])) || (isdigit(regex[i - 1]) && isdigit(regex[i])))
-            return false;
-    }
-
-    if (count(regex.begin(), regex.end(), '(') != count(regex.begin(), regex.end(), ')')) {
-        return false;
-    }
-    return true;
-}
-
 std::string formaPoloneza(const std::string &regex)
 {
-    if(!isValid(regex)){
+    if(!UsefulMethods::isValidRegex(regex)){
         std::cout << "Regex exp is not valid try again!\n";
         return "";
     }
@@ -242,12 +214,11 @@ std::string formaPoloneza(const std::string &regex)
         fp.push_back(op.top());
         op.pop();
     }
-    std::cout << fp << '\n';
     return fp;
 }
 
-DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(const std::string &regex) {
-    if(!isValid(regex)){
+FiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(const std::string &regex) {
+    if(!UsefulMethods::isValidRegex(regex)){
         std::cout << "Regex is not valid!\n";
         return {};
     }
@@ -257,6 +228,8 @@ DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(cons
     #define q "q"
     std::stack<FiniteAutomaton> StackAutomata;
     int counter = 0;
+
+    auto isChar = [](char c){return (c != '|' && c != '*' && c != '.' && c != '(' && c != ')');};
 
     for(size_t index = 0; index < fp.length(); index++){
         if(isChar(fp[index])){
@@ -438,8 +411,6 @@ DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(cons
     FiniteAutomaton resultedAutomata = StackAutomata.top();
     StackAutomata.pop();
 
-    std::cout << "result: "<< resultedAutomata.CheckWord("avcbacccabaaccccc");
-
-    return {};
+    return resultedAutomata;
 }
 
