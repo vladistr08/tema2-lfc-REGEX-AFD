@@ -217,7 +217,7 @@ std::string formaPoloneza(const std::string &regex)
     return fp;
 }
 
-FiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(const std::string &regex) {
+DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(const std::string &regex) {
     if(!UsefulMethods::isValidRegex(regex)){
         std::cout << "Regex is not valid!\n";
         return {};
@@ -411,10 +411,10 @@ FiniteAutomaton DeterministicFiniteAutomaton::ConvertFromRegex(const std::string
     FiniteAutomaton resultedAutomata = StackAutomata.top();
     StackAutomata.pop();
 
-    return resultedAutomata;
+    return ConvertFromNFA(resultedAutomata);
 }
 
-DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromNFA(const FiniteAutomaton &automaton) {
+DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromNFA(FiniteAutomaton automaton) {
     std::vector<std::string> symbols = automaton.getMSymbols(), newSymbols;
 
     std::vector<std::string> states = automaton.getMStates(), newStates{};
@@ -429,8 +429,87 @@ DeterministicFiniteAutomaton DeterministicFiniteAutomaton::ConvertFromNFA(const 
 
     size_t counter = 0;
     std::unordered_map<std::string, std::unordered_set<std::string>> newStatesMap;
+    std::unordered_set<std::string> currentStates;
+
+    //Symbols
+    for(const auto &symbol: symbols){
+        if(symbol != lambda){
+            newSymbols.emplace_back(symbol);
+        }
+    }
+
+    #define p "p"
+
+    //Initialize the first state
+    std::queue<std::string> statesToGenerateDelta;
+    newStates.emplace_back(p + std::to_string(counter));
+    newStartState = p + std::to_string(counter);
+    statesToGenerateDelta.emplace(newStartState);
 
 
+    //Prepare start of algorithm
+    currentStates.emplace(startState);
+
+    while(!statesToGenerateDelta.empty()){
+        std::string currentNewState = statesToGenerateDelta.front();
+        statesToGenerateDelta.pop();
+
+        for(const auto &symbol: newSymbols){
+            std::vector<std::string> currentFound{}, auxClosure{};
+            for(const auto & state: currentStates){
+                currentFound = UsefulMethods::unionVector(currentFound, automaton.findLambdaClosure(state, symbol, auxClosure));
+            }
+            UsefulMethods::removeDuplicates(currentFound);
+
+            currentStates.clear();
+            for(const auto & state: currentFound){
+                currentStates.emplace(state);
+            }
+            currentFound.clear();
+
+            if(currentStates.empty())
+                continue;
+
+            bool ok = true;
+            std::string toState;
+            for(auto &[state, setValue]: newStatesMap){
+                if(UsefulMethods::equalSets(currentStates, setValue)){
+                    toState = state;
+                    ok = false;
+                    break;
+                }
+            }
+
+            if(ok){
+                counter++;
+
+                toState = p + std::to_string(counter);
+
+                newDelta[currentNewState].insert({symbol, toState});
+                newStatesMap[currentNewState] = currentStates;
+
+                newStates.emplace_back(toState);
+                statesToGenerateDelta.emplace(toState);
+            }
+            else{
+                newDelta[currentNewState].insert({symbol, toState});
+            }
+        }
+    }
+
+    for(auto &[state, setValue]: newStatesMap){
+        for(const auto &el: setValue){
+            if(std::find(finalStates.begin(), finalStates.end(), el) != finalStates.end()){
+                newFinalStates.emplace_back(state);
+                continue;
+            }
+        }
+    }
+
+    DeterministicFiniteAutomaton newAutomaton(newStates, newSymbols, newDelta, newStartState, newFinalStates);
+    newAutomaton.PrintAutomaton();
+
+    return newAutomaton;
 
 }
 

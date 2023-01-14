@@ -19,7 +19,7 @@ int main() {
         return 0;
     }
 
-    FiniteAutomaton a = DeterministicFiniteAutomaton::ConvertFromRegex(regex);
+    DeterministicFiniteAutomaton a = DeterministicFiniteAutomaton::ConvertFromRegex(regex);
 
     std::string word;
     int options = 0;

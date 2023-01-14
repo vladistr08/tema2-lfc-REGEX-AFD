@@ -43,11 +43,12 @@ public:
     bool CheckWord(const std::string &word);
     bool IsDeterministic();
 
+    std::vector<std::string> findLambdaClosure(const std::string &state, const std::string & symbol, std::vector<std::string> &closure);
+
     friend std::ostream& operator<<(std::ostream &out, const FiniteAutomaton &automaton);
     FiniteAutomaton& operator=(const FiniteAutomaton &f) = default;
     ~FiniteAutomaton() = default;
 private:
-    std::vector<std::string> findLambdaClosure(const std::string &state, const std::string & symbol, std::vector<std::string> &closure);
     std::vector<std::string> generateStatesForSymbol(const std::string &symbol, const std::vector<std::string> &posibleStates);
 protected:
     std::vector<std::string> m_states, m_finalStates;

@@ -114,6 +114,8 @@ bool FiniteAutomaton::CheckWord(const std::string &word) {
         if(std::find(m_symbols.begin(), m_symbols.end(), str) == m_symbols.end())
             return false;
         posibleStates = generateStatesForSymbol(str, posibleStates);
+        if(posibleStates.empty())
+            return false;
     }
     for(const auto &state: posibleStates){
         if(std::find(this->m_finalStates.begin(), this->m_finalStates.end(), state) != this->m_finalStates.end())
@@ -156,6 +158,7 @@ FiniteAutomaton::generateStatesForSymbol(const std::string &symbol, const std::v
         auto it = this->m_delta.find(state);
         std::vector<std::string> states;
         if(it != this->m_delta.end()){
+            bool ok = false;
             if(it->second.find(symbol) != it->second.end()){
                 states = it->second.find(symbol)->second;
             }
@@ -164,15 +167,11 @@ FiniteAutomaton::generateStatesForSymbol(const std::string &symbol, const std::v
                 states = UsefulMethods::unionVector(states, resultLambdaClosure);
             }
         }
-        if(states.empty())
-            states = {state};
         result = UsefulMethods::unionVector(result, states);
         UsefulMethods::removeDuplicates(result);
     }
-    return result.empty() ? posibleStates : result;
+    return result;
 }
-
-
 
 bool FiniteAutomaton::IsDeterministic() {
     if(!VerifyAutomaton()){

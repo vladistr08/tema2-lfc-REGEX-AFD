@@ -53,3 +53,12 @@ std::string UsefulMethods::convertVectorOfStatesToString(const std::vector<std::
     }
     result += "}";
 }
+
+bool UsefulMethods::equalSets(const std::unordered_set<std::string> &a, const std::unordered_set<std::string> &b) {
+    if(a.size() != b.size())
+        return false;
+    for(const auto & el: a)
+        if(b.find(el) == b.end())
+            return false;
+    return true;
+}
