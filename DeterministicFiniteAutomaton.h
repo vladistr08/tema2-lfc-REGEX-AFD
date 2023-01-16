@@ -46,7 +46,7 @@ public:
     const std::unordered_map<std::string, std::unordered_map<std::string, std::string>> &getMDelta() const;
     void setMDelta(const std::unordered_map<std::string, std::unordered_map<std::string, std::string>> &mDelta);
 
-    static DeterministicFiniteAutomaton ConvertFromRegex(const std::string &regex);
+    static FiniteAutomaton ConvertFromRegex(const std::string &regex);
     static DeterministicFiniteAutomaton ConvertFromNFA(FiniteAutomaton automaton);
 
     friend std::ostream& operator<<(std::ostream &out, const DeterministicFiniteAutomaton &automaton);
